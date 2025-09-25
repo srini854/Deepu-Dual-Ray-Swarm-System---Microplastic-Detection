@@ -4,7 +4,8 @@ import {
   Map, 
   BarChart3, 
   Zap, 
-  Settings as SettingsIcon 
+  Settings as SettingsIcon,
+  FileText
 } from 'lucide-react';
 
 interface NavigationProps {
@@ -19,6 +20,7 @@ export function Navigation({ currentView, onViewChange }: NavigationProps) {
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
     { id: 'sensors', label: 'Sensor Fusion', icon: Zap },
     { id: 'settings', label: 'Settings', icon: SettingsIcon },
+    { id: 'technical', label: 'Technical Docs', icon: FileText },
   ];
 
   return (

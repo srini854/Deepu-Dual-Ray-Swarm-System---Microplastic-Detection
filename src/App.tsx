@@ -6,10 +6,11 @@ import { MapView } from './components/MapView';
 import { Analytics } from './components/Analytics';
 import { SensorFusion } from './components/SensorFusion';
 import { Settings } from './components/Settings';
+import { TechnicalDocumentation } from './components/TechnicalDocumentation';
 import { DataProvider } from './context/DataContext';
 import './App.css';
 
-type View = 'dashboard' | 'map' | 'analytics' | 'sensors' | 'settings';
+type View = 'dashboard' | 'map' | 'analytics' | 'sensors' | 'settings' | 'technical';
 
 function App() {
   const [currentView, setCurrentView] = useState<View>('dashboard');
@@ -26,6 +27,8 @@ function App() {
         return <SensorFusion />;
       case 'settings':
         return <Settings />;
+      case 'technical':
+        return <TechnicalDocumentation />;
       default:
         return <Dashboard />;
     }
