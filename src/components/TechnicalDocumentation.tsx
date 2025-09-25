@@ -60,34 +60,34 @@ The unified dual ray sensor represents a paradigm shift from traditional separat
 ### 2.2 Core Processing Algorithms
 
 **Algorithm 1: Cross-Correlation Analysis**
-```
+\`\`\`
 Function: correlateSignals(laserSignal, infraredSignal)
   1. Apply FFT to both signals
   2. Calculate cross-power spectral density
   3. Perform inverse FFT to get correlation function
   4. Find peak correlation coefficient
   5. Return correlation strength and phase alignment
-```
+\`\`\`
 
 **Algorithm 2: Spectral Feature Extraction**
-```
+\`\`\`
 Function: extractSpectralFeatures(dualRayData)
   1. Decompose signals into frequency components
   2. Calculate spectral moments (mean, variance, skewness)
   3. Extract peak wavelength responses
   4. Compute spectral ratios between laser and infrared
   5. Generate feature vector for classification
-```
+\`\`\`
 
 **Algorithm 3: Particle Size Estimation**
-```
+\`\`\`
 Function: estimateParticleSize(laserScattering, infraredAbsorption)
   1. Apply Mie scattering theory for laser component
   2. Use Beer-Lambert law for infrared absorption
   3. Cross-validate size estimates from both methods
   4. Apply correction factors for refractive index
   5. Return unified size estimation with confidence interval
-```
+\`\`\`
 
 ### 2.3 AI/ML Integration Backend
 
@@ -154,7 +154,7 @@ Function: estimateParticleSize(laserScattering, infraredAbsorption)
 - **Communication Protocol:** MQTT over WiFi/LoRa
 
 **Processing Pipeline Implementation:**
-``\`c
+\`\`\`c
 // Main processing loop (simplified)
 void processDualRayData() {
     // 1. Acquire synchronized samples
@@ -177,7 +177,7 @@ void processDualRayData() {
     // 6. Output generation
     outputConcentration(result.concentration, result.confidence);
 }
-```
+\`\`\`
 
 ## 4. Accuracy Enhancement Techniques
 
@@ -204,22 +204,22 @@ void processDualRayData() {
 ### 4.2 Environmental Compensation Algorithms
 
 **Water Turbidity Compensation:**
-```
+\`\`\`
 Function: compensateTurbidity(signal, turbidityLevel)
   1. Apply Beer-Lambert correction for light attenuation
   2. Adjust baseline using turbidity reference measurements
   3. Scale signal amplitude based on path length
   4. Return corrected signal with uncertainty bounds
-```
+\`\`\`
 
 **Temperature Drift Compensation:**
-```
+\`\`\`
 Function: compensateTemperature(signal, temperature)
   1. Apply temperature coefficient corrections
   2. Adjust wavelength stability parameters
   3. Compensate for thermal expansion effects
   4. Update calibration parameters dynamically
-```
+\`\`\`
 
 ## 5. Performance Metrics and Validation
 
