@@ -154,7 +154,7 @@ Function: estimateParticleSize(laserScattering, infraredAbsorption)
 - **Communication Protocol:** MQTT over WiFi/LoRa
 
 **Processing Pipeline Implementation:**
-```c
+``\`c
 // Main processing loop (simplified)
 void processDualRayData() {
     // 1. Acquire synchronized samples
