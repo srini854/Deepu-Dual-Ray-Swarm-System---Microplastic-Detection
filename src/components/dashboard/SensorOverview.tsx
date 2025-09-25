@@ -3,21 +3,21 @@ import { useData } from '../../context/DataContext';
 import { Zap, Target, Layers } from 'lucide-react';
 
 export function SensorOverview() {
-  const { sensorData, activeBoats, getUnifiedSensorAccuracy } = useData();
+  const { sensorData, activeBoats, getDualRayStatus } = useData();
 
   // Calculate average accuracies across all boats
-  const avgAccuracies = activeBoats.reduce((acc, boatId) => {
-    const accuracy = getUnifiedSensorAccuracy(boatId);
-    acc.unified += accuracy.unified;
-    acc.ai_confidence += accuracy.ai_confidence;
-    acc.ml_quality += accuracy.ml_quality;
+  const avgStatus = activeBoats.reduce((acc, boatId) => {
+    const status = getDualRayStatus(boatId);
+    acc.laser_signal += status.laser.signal;
+    acc.infrared_signal += status.infrared.signal;
+    acc.unified_accuracy += status.unified.accuracy;
     return acc;
-  }, { unified: 0, ai_confidence: 0, ml_quality: 0 });
+  }, { laser_signal: 0, infrared_signal: 0, unified_accuracy: 0 });
 
   const boatCount = activeBoats.length;
-  avgAccuracies.unified /= boatCount;
-  avgAccuracies.ai_confidence /= boatCount;
-  avgAccuracies.ml_quality /= boatCount;
+  avgStatus.laser_signal /= boatCount;
+  avgStatus.infrared_signal /= boatCount;
+  avgStatus.unified_accuracy /= boatCount;
 
   // Get latest overall statistics
   const latestReadings = activeBoats.map(boatId => 
@@ -33,10 +33,10 @@ export function SensorOverview() {
   return (
     <div className="sensor-overview">
       <div className="overview-header">
-        <h3>AI-Powered Unified Dual Ray Sensor Overview</h3>
+        <h3>Unified Dual Ray Sensor Overview</h3>
         <div className="sync-indicator">
           <div className="sync-dot"></div>
-          <span>AI System Active</span>
+          <span>Dual Ray System Active</span>
         </div>
       </div>
 
@@ -44,41 +44,41 @@ export function SensorOverview() {
         <div className="accuracy-card unified">
           <div className="accuracy-header">
             <Layers className="accuracy-icon" />
-            <span>Unified Dual Ray</span>
+            <span>Laser (650nm)</span>
           </div>
-          <div className="accuracy-value">{avgAccuracies.unified.toFixed(1)}%</div>
+          <div className="accuracy-value">{avgStatus.laser_signal.toFixed(1)}%</div>
+          <div className="accuracy-bar">
+            <div 
+              className="accuracy-fill laser-fill"
+              style={{ width: `${avgStatus.laser_signal}%` }}
+            ></div>
+          </div>
+        </div>
+
+        <div className="accuracy-card infrared">
+          <div className="accuracy-header">
+            <Zap className="accuracy-icon" />
+            <span>Infrared (1550nm)</span>
+          </div>
+          <div className="accuracy-value">{avgStatus.infrared_signal.toFixed(1)}%</div>
+          <div className="accuracy-bar">
+            <div 
+              className="accuracy-fill infrared-fill"
+              style={{ width: `${avgStatus.infrared_signal}%` }}
+            ></div>
+          </div>
+        </div>
+
+        <div className="accuracy-card unified-accuracy">
+          <div className="accuracy-header">
+            <Target className="accuracy-icon" />
+            <span>Unified Accuracy</span>
+          </div>
+          <div className="accuracy-value">{avgStatus.unified_accuracy.toFixed(1)}%</div>
           <div className="accuracy-bar">
             <div 
               className="accuracy-fill unified-fill"
-              style={{ width: `${avgAccuracies.unified}%` }}
-            ></div>
-          </div>
-        </div>
-
-        <div className="accuracy-card ai-confidence">
-          <div className="accuracy-header">
-            <Zap className="accuracy-icon" />
-            <span>AI Confidence</span>
-          </div>
-          <div className="accuracy-value">{avgAccuracies.ai_confidence.toFixed(1)}%</div>
-          <div className="accuracy-bar">
-            <div 
-              className="accuracy-fill ai-fill"
-              style={{ width: `${avgAccuracies.ai_confidence}%` }}
-            ></div>
-          </div>
-        </div>
-
-        <div className="accuracy-card ml-quality">
-          <div className="accuracy-header">
-            <Target className="accuracy-icon" />
-            <span>ML Quality</span>
-          </div>
-          <div className="accuracy-value">{avgAccuracies.ml_quality.toFixed(1)}%</div>
-          <div className="accuracy-bar">
-            <div 
-              className="accuracy-fill ml-fill"
-              style={{ width: `${avgAccuracies.ml_quality}%` }}
+              style={{ width: `${avgStatus.unified_accuracy}%` }}
             ></div>
           </div>
         </div>
@@ -163,11 +163,11 @@ export function SensorOverview() {
           background: linear-gradient(135deg, #dbeafe 0%, #3b82f6 5%, #f8fafc 100%);
         }
 
-        .accuracy-card.ai-confidence {
-          background: linear-gradient(135deg, #f0fdf4 0%, #10b981 5%, #f8fafc 100%);
+        .accuracy-card.infrared {
+          background: linear-gradient(135deg, #faf5ff 0%, #8b5cf6 5%, #f8fafc 100%);
         }
 
-        .accuracy-card.ml-quality {
+        .accuracy-card.unified-accuracy {
           background: linear-gradient(135deg, #ecfdf5 0%, #22c55e 5%, #f8fafc 100%);
         }
 
@@ -209,15 +209,11 @@ export function SensorOverview() {
           background: linear-gradient(90deg, #fbbf24, #f59e0b);
         }
 
+        .infrared-fill {
+          background: linear-gradient(90deg, #8b5cf6, #7c3aed);
+        }
+
         .unified-fill {
-          background: linear-gradient(90deg, #3b82f6, #2563eb);
-        }
-
-        .ai-fill {
-          background: linear-gradient(90deg, #10b981, #059669);
-        }
-
-        .ml-fill {
           background: linear-gradient(90deg, #22c55e, #16a34a);
         }
 

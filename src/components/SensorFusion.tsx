@@ -3,24 +3,17 @@ import { useData } from '../context/DataContext';
 import { Zap, Target, Layers, Settings, Vibrate as Calibrate } from 'lucide-react';
 
 export function SensorFusion() {
-  const { sensorData, activeBoats, getUnifiedSensorAccuracy, technicalSpecs, getSensorTechnicalData, validateSensorAccuracy, getAIFusionMetrics } = useData();
+  const { sensorData, activeBoats, getDualRayStatus, technicalSpecs, getSensorTechnicalData, validateSensorPerformance, getUnifiedSensorMetrics } = useData();
   const [selectedBoat, setSelectedBoat] = useState(activeBoats[0] || 'B1');
   const [calibrationMode, setCalibrationMode] = useState(false);
   const [showTechnicalDetails, setShowTechnicalDetails] = useState(false);
 
-  const boatAccuracy = getUnifiedSensorAccuracy(selectedBoat);
+  const dualRayStatus = getDualRayStatus(selectedBoat);
   const latestReading = sensorData.filter(d => d.boat_id === selectedBoat).pop();
   const technicalData = getSensorTechnicalData(selectedBoat);
-  const validationData = validateSensorAccuracy(selectedBoat);
-  const aiFusionData = getAIFusionMetrics(selectedBoat);
+  const validationData = validateSensorPerformance(selectedBoat);
+  const unifiedMetrics = getUnifiedSensorMetrics(selectedBoat);
 
-  // Calculate fusion algorithm performance
-  const fusionMetrics = {
-    ai_enhancement: boatAccuracy.unified - 85, // Improvement over traditional methods
-    confidence: boatAccuracy.ai_confidence,
-    reliability: Math.min(100, boatAccuracy.unified + (boatAccuracy.ml_quality) / 100),
-    ml_quality: boatAccuracy.ml_quality
-  };
 
   return (
     <div className="sensor-fusion">
@@ -61,65 +54,65 @@ export function SensorFusion() {
         <div className="fusion-section">
           <div className="section-title">
             <Layers className="section-icon" />
-            <span>Unified Dual Ray Sensor</span>
+            <span>Laser Sensor (650nm)</span>
           </div>
-          <div className="sensor-display unified">
+          <div className="sensor-display laser">
             <div className="accuracy-circle">
-              <div className="accuracy-ring unified-ring" style={{ 
-                background: `conic-gradient(#3b82f6 0deg ${boatAccuracy.unified * 3.6}deg, #e2e8f0 ${boatAccuracy.unified * 3.6}deg)` 
+              <div className="accuracy-ring laser-ring" style={{ 
+                background: `conic-gradient(#ef4444 0deg ${dualRayStatus.laser.signal * 3.6}deg, #e2e8f0 ${dualRayStatus.laser.signal * 3.6}deg)` 
               }}>
                 <div className="accuracy-center">
-                  <span className="accuracy-percent">{boatAccuracy.unified.toFixed(1)}%</span>
-                  <span className="accuracy-label">Accuracy</span>
+                  <span className="accuracy-percent">{dualRayStatus.laser.signal.toFixed(1)}%</span>
+                  <span className="accuracy-label">Signal</span>
                 </div>
               </div>
             </div>
             <div className="sensor-metrics">
               <div className="metric">
-                <span>Dual-Ray Detection</span>
-                <span>{latestReading?.particle_size_microns.toFixed(1) || 0} μm</span>
+                <span>Status</span>
+                <span className={`status-${dualRayStatus.laser.status}`}>{dualRayStatus.laser.status.toUpperCase()}</span>
               </div>
               <div className="metric">
-                <span>AI Confidence</span>
-                <span>{boatAccuracy.ai_confidence.toFixed(1)}%</span>
+                <span>Wavelength Stability</span>
+                <span>{dualRayStatus.laser.stability.toFixed(1)}%</span>
               </div>
               <div className="metric">
-                <span>ML Fusion Quality</span>
-                <span className="status-good">{boatAccuracy.ml_quality.toFixed(1)}%</span>
+                <span>Power Output</span>
+                <span className="status-good">3.2mW</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* AI/ML Processing */}
-        <div className="fusion-section ai-section">
+        {/* Infrared Processing */}
+        <div className="fusion-section infrared-section">
           <div className="section-title">
             <Zap className="section-icon" />
-            <span>AI/ML Fusion Engine</span>
+            <span>Infrared Sensor (1550nm)</span>
           </div>
-          <div className="sensor-display ai-processing">
+          <div className="sensor-display infrared-processing">
             <div className="accuracy-circle">
-              <div className="accuracy-ring ai-ring" style={{ 
-                background: `conic-gradient(#10b981 0deg ${boatAccuracy.ai_confidence * 3.6}deg, #e2e8f0 ${boatAccuracy.ai_confidence * 3.6}deg)` 
+              <div className="accuracy-ring infrared-ring" style={{ 
+                background: `conic-gradient(#8b5cf6 0deg ${dualRayStatus.infrared.signal * 3.6}deg, #e2e8f0 ${dualRayStatus.infrared.signal * 3.6}deg)` 
               }}>
                 <div className="accuracy-center">
-                  <span className="accuracy-percent">{boatAccuracy.ai_confidence.toFixed(1)}%</span>
-                  <span className="accuracy-label">AI Score</span>
+                  <span className="accuracy-percent">{dualRayStatus.infrared.signal.toFixed(1)}%</span>
+                  <span className="accuracy-label">Signal</span>
                 </div>
               </div>
             </div>
             <div className="sensor-metrics">
               <div className="metric">
-                <span>Concentration</span>
-                <span>{latestReading?.concentration_ppm.toFixed(2) || 0} ppm</span>
+                <span>Status</span>
+                <span className={`status-${dualRayStatus.infrared.status}`}>{dualRayStatus.infrared.status.toUpperCase()}</span>
               </div>
               <div className="metric">
-                <span>Neural Network</span>
-                <span>{latestReading?.neural_network_output?.toFixed(1) || 0}%</span>
+                <span>Wavelength Stability</span>
+                <span>{dualRayStatus.infrared.stability.toFixed(1)}%</span>
               </div>
               <div className="metric">
-                <span>Ensemble Score</span>
-                <span className="status-good">{latestReading?.ensemble_prediction?.toFixed(1) || 0}%</span>
+                <span>Power Output</span>
+                <span className="status-good">4.8mW</span>
               </div>
             </div>
           </div>
@@ -128,16 +121,16 @@ export function SensorFusion() {
         <div className="fusion-section full-width">
           <div className="section-title">
             <Layers className="section-icon" />
-            <span>AI-Powered Unified Detection System</span>
+            <span>Unified Dual Ray Detection System</span>
           </div>
           <div className="fusion-display">
             <div className="fusion-accuracy">
               <div className="accuracy-circle large">
                 <div className="accuracy-ring unified-large-ring" style={{ 
-                  background: `conic-gradient(#8b5cf6 0deg ${boatAccuracy.unified * 3.6}deg, #e2e8f0 ${boatAccuracy.unified * 3.6}deg)` 
+                  background: `conic-gradient(#10b981 0deg ${dualRayStatus.unified.accuracy * 3.6}deg, #e2e8f0 ${dualRayStatus.unified.accuracy * 3.6}deg)` 
                 }}>
                   <div className="accuracy-center">
-                    <span className="accuracy-percent large">{boatAccuracy.unified.toFixed(1)}%</span>
+                    <span className="accuracy-percent large">{dualRayStatus.unified.accuracy.toFixed(1)}%</span>
                     <span className="accuracy-label">Unified Accuracy</span>
                   </div>
                 </div>
@@ -147,36 +140,36 @@ export function SensorFusion() {
             <div className="fusion-metrics">
               <div className="fusion-stats">
                 <div className="stat-card">
-                  <div className="stat-value">+{fusionMetrics.ai_enhancement.toFixed(1)}%</div>
-                  <div className="stat-label">AI Enhancement</div>
+                  <div className="stat-value">{dualRayStatus.unified.alignment.toFixed(1)}%</div>
+                  <div className="stat-label">Optical Alignment</div>
                 </div>
                 <div className="stat-card">
-                  <div className="stat-value">{fusionMetrics.confidence.toFixed(1)}%</div>
-                  <div className="stat-label">AI Confidence</div>
+                  <div className="stat-value">{dualRayStatus.unified.confidence.toFixed(1)}%</div>
+                  <div className="stat-label">Detection Confidence</div>
                 </div>
                 <div className="stat-card">
-                  <div className="stat-value">{fusionMetrics.ml_quality.toFixed(1)}%</div>
-                  <div className="stat-label">ML Quality</div>
+                  <div className="stat-value">{latestReading?.concentration_ppm.toFixed(2) || 0}</div>
+                  <div className="stat-label">Concentration (ppm)</div>
                 </div>
               </div>
 
               <div className="fusion-algorithm">
-                <h4>AI/ML Pipeline Status</h4>
+                <h4>Signal Processing Pipeline</h4>
                 <div className="algorithm-steps">
                   <div className="step active">
                     <span>1. Dual-Ray Capture</span>
                     <div className="step-status good"></div>
                   </div>
                   <div className="step active">
-                    <span>2. Neural Processing</span>
+                    <span>2. Signal Correlation</span>
                     <div className="step-status good"></div>
                   </div>
                   <div className="step active">
-                    <span>3. AI Fusion</span>
+                    <span>3. Optical Fusion</span>
                     <div className="step-status good"></div>
                   </div>
                   <div className="step active">
-                    <span>4. Ensemble Prediction</span>
+                    <span>4. Detection Output</span>
                     <div className="step-status good"></div>
                   </div>
                 </div>
@@ -216,34 +209,34 @@ export function SensorFusion() {
 
           {/* Fusion Algorithm Explanation */}
           <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-            <h4 className="font-medium text-blue-900 mb-2">How AI-Powered Unified Sensor Works</h4>
+            <h4 className="font-medium text-blue-900 mb-2">How Unified Dual Ray Sensor Works</h4>
             <div className="space-y-3 text-sm text-blue-800">
               <div>
-                <p className="font-medium">1. Unified Dual-Ray Capture:</p>
-                <p>Single sensor simultaneously captures laser scattering (650nm) and infrared spectroscopy (1550nm) data in real-time with perfect temporal alignment.</p>
+                <p className="font-medium">1. Coaxial Dual-Beam Architecture:</p>
+                <p>Single optical path combines laser (650nm) and infrared (1550nm) beams using dichroic beam splitter for perfect spatial and temporal alignment.</p>
               </div>
               <div>
-                <p className="font-medium">2. Deep Neural Network Processing:</p>
-                <p>Transformer-based architecture with attention mechanisms processes multi-modal spectral data, learning complex patterns and correlations.</p>
+                <p className="font-medium">2. Optical Signal Processing:</p>
+                <p>Digital correlation algorithms process dual-wavelength signals with phase-locked detection for enhanced sensitivity and noise reduction.</p>
               </div>
               <div>
-                <p className="font-medium">3. AI-Powered Ensemble Fusion:</p>
-                <p>Multiple ML models vote on predictions, with LSTM temporal processing ensuring consistency and adaptive environmental compensation.</p>
+                <p className="font-medium">3. Real-time Signal Fusion:</p>
+                <p>Cross-correlation analysis combines laser scattering and infrared absorption data for comprehensive particle characterization.</p>
               </div>
             </div>
             
             <div className="grid grid-cols-3 gap-4 mt-4">
               <div className="text-center">
-                <p className="text-xs text-blue-600">AI Enhancement</p>
-                <p className="text-lg font-bold text-blue-900">+{fusionMetrics.ai_enhancement.toFixed(1)}%</p>
+                <p className="text-xs text-blue-600">Laser Signal</p>
+                <p className="text-lg font-bold text-blue-900">{dualRayStatus.laser.signal.toFixed(1)}%</p>
               </div>
               <div className="text-center">
-                <p className="text-xs text-blue-600">AI Confidence</p>
-                <p className="text-lg font-bold text-blue-900">{fusionMetrics.confidence.toFixed(1)}%</p>
+                <p className="text-xs text-blue-600">Infrared Signal</p>
+                <p className="text-lg font-bold text-blue-900">{dualRayStatus.infrared.signal.toFixed(1)}%</p>
               </div>
               <div className="text-center">
-                <p className="text-xs text-blue-600">ML Quality Score</p>
-                <p className="text-lg font-bold text-blue-900">{fusionMetrics.ml_quality.toFixed(1)}%</p>
+                <p className="text-xs text-blue-600">Unified Accuracy</p>
+                <p className="text-lg font-bold text-blue-900">{dualRayStatus.unified.accuracy.toFixed(1)}%</p>
               </div>
             </div>
           </div>
@@ -266,21 +259,21 @@ export function SensorFusion() {
               <h4>Unified Sensor Calibration</h4>
               <div className="calibration-controls">
                 <label>
-                  Dual-Ray Sensitivity: <input type="range" min="85" max="100" defaultValue="95" />
+                  Laser Power: <input type="range" min="1" max="5" step="0.1" defaultValue="3.2" />
                 </label>
                 <label>
-                  AI Confidence Threshold: <input type="range" min="80" max="99" defaultValue="90" />
+                  Infrared Power: <input type="range" min="2" max="6" step="0.1" defaultValue="4.8" />
                 </label>
               </div>
             </div>
             <div className="calibration-section">
-              <h4>ML Model Parameters</h4>
+              <h4>Optical Parameters</h4>
               <div className="calibration-controls">
                 <label>
-                  Learning Rate: <input type="range" min="1" max="10" step="1" defaultValue="5" />
+                  Beam Alignment: <input type="range" min="90" max="100" step="0.1" defaultValue="95.5" />
                 </label>
                 <label>
-                  Ensemble Weight: <input type="range" min="0" max="1" step="0.1" defaultValue="0.7" />
+                  Correlation Threshold: <input type="range" min="0.8" max="1.0" step="0.01" defaultValue="0.94" />
                 </label>
               </div>
             </div>
@@ -395,14 +388,20 @@ export function SensorFusion() {
           gap: 24px;
         }
 
-        .sensor-display.ai-processing {
+        .sensor-display.laser {
           display: flex;
           flex-direction: column;
           gap: 24px;
         }
 
-        .ai-section {
-          background: linear-gradient(135deg, #f0fdf4 0%, #10b981 2%, #f8fafc 100%);
+        .sensor-display.infrared-processing {
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+        }
+
+        .infrared-section {
+          background: linear-gradient(135deg, #faf5ff 0%, #8b5cf6 2%, #f8fafc 100%);
         }
 
         .accuracy-circle {
@@ -445,12 +444,16 @@ export function SensorFusion() {
           border: 3px solid #3b82f6;
         }
 
-        .accuracy-ring.ai-ring {
-          border: 3px solid #10b981;
+        .accuracy-ring.laser-ring {
+          border: 3px solid #ef4444;
+        }
+
+        .accuracy-ring.infrared-ring {
+          border: 3px solid #8b5cf6;
         }
 
         .accuracy-ring.unified-large-ring {
-          border: 4px solid #8b5cf6;
+          border: 4px solid #10b981;
         }
 
         .accuracy-percent {
@@ -499,6 +502,20 @@ export function SensorFusion() {
           color: #22c55e !important;
         }
 
+        .status-active {
+          color: #22c55e !important;
+          font-weight: 600;
+        }
+
+        .status-degraded {
+          color: #f59e0b !important;
+          font-weight: 600;
+        }
+
+        .status-offline {
+          color: #ef4444 !important;
+          font-weight: 600;
+        }
         .fusion-display {
           display: flex;
           gap: 32px;

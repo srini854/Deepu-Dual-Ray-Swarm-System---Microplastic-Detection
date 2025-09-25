@@ -11,17 +11,17 @@ interface SensorReading {
   collection_volume_ml: number;
   battery_status: number;
   power_source: string;
-  unified_sensor_accuracy: number;
-  dual_ray_signal_strength: number;
-  ai_confidence_score: number;
-  ml_fusion_quality: number;
-  calibration_status?: string;
-  sensor_temperature?: number;
-  water_turbidity?: number;
-  detection_confidence?: number;
-  spectral_signature?: number[];
-  neural_network_output?: number;
-  ensemble_prediction?: number;
+  laser_signal_strength: number;
+  infrared_signal_strength: number;
+  laser_status: 'active' | 'degraded' | 'offline';
+  infrared_status: 'active' | 'degraded' | 'offline';
+  optical_alignment: number;
+  sensor_temperature: number;
+  water_turbidity: number;
+  detection_confidence: number;
+  laser_wavelength_stability: number;
+  infrared_wavelength_stability: number;
+  unified_detection_accuracy: number;
 }
 
 interface SensorTechnicalData {
@@ -30,15 +30,15 @@ interface SensorTechnicalData {
   sampling_rate: number; // Hz
   detection_threshold: number; // ppm
   calibration_date: string;
-  ai_fusion_algorithm: string;
-  ml_model_version: string;
-  neural_network_architecture: string;
-  accuracy_validation: {
-    cross_validation_score: number;
-    statistical_confidence: number;
-    error_margin: number;
-    ai_model_accuracy: number;
-    ensemble_performance: number;
+  fusion_algorithm: string;
+  sensor_integration_method: string;
+  optical_design: string;
+  technical_validation: {
+    laser_stability: number;
+    infrared_stability: number;
+    temporal_alignment: number;
+    optical_efficiency: number;
+    signal_to_noise_ratio: number;
   };
 }
 interface DataContextType {
@@ -47,11 +47,11 @@ interface DataContextType {
   isConnected: boolean;
   lastUpdate: Date | null;
   technicalSpecs: SensorTechnicalData;
-  getUnifiedSensorAccuracy: (boatId: string) => { unified: number; ai_confidence: number; ml_quality: number };
+  getDualRayStatus: (boatId: string) => { laser: any; infrared: any; unified: any };
   getBoatStatus: (boatId: string) => 'active' | 'warning' | 'offline';
   getSensorTechnicalData: (boatId: string) => any;
-  validateSensorAccuracy: (boatId: string) => any;
-  getAIFusionMetrics: (boatId: string) => any;
+  validateSensorPerformance: (boatId: string) => any;
+  getUnifiedSensorMetrics: (boatId: string) => any;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -77,15 +77,15 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     sampling_rate: 10, // Hz
     detection_threshold: 0.1, // ppm
     calibration_date: '2024-09-01',
-    ai_fusion_algorithm: 'Deep Neural Network with Attention Mechanism + Ensemble Learning',
-    ml_model_version: 'DualRayNet-v2.1',
-    neural_network_architecture: 'Transformer-based Multi-Modal Fusion with LSTM temporal processing',
-    accuracy_validation: {
-      cross_validation_score: 0.94,
-      statistical_confidence: 0.96,
-      error_margin: 0.03,
-      ai_model_accuracy: 0.97,
-      ensemble_performance: 0.98
+    fusion_algorithm: 'Optical Signal Processing with Digital Correlation',
+    sensor_integration_method: 'Coaxial Dual-Beam Architecture',
+    optical_design: 'Shared Optical Path with Dichroic Beam Splitter',
+    technical_validation: {
+      laser_stability: 0.98,
+      infrared_stability: 0.96,
+      temporal_alignment: 0.99,
+      optical_efficiency: 0.92,
+      signal_to_noise_ratio: 45.2
     }
   };
 
@@ -104,17 +104,22 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
                    concentration_ppm, depth_cm, collection_volume_ml, battery_status, power_source] = line.split(',');
             
             // Calculate unified sensor metrics using AI/ML fusion
-            const base_accuracy = 88 + (parseInt(battery_status) / 100) * 10;
-            const concentration_factor = Math.min(8, (parseFloat(concentration_ppm) / 5) * 8);
-            const unified_sensor_accuracy = Math.min(98, base_accuracy + concentration_factor);
-            const ai_confidence_score = Math.min(99, unified_sensor_accuracy + Math.random() * 3);
-            const ml_fusion_quality = Math.min(97, unified_sensor_accuracy + Math.random() * 2);
-            const dual_ray_signal_strength = Math.min(100, 85 + Math.random() * 15);
+            // Calculate laser and infrared sensor metrics
+            const laser_signal_strength = Math.min(100, 85 + Math.random() * 15);
+            const infrared_signal_strength = Math.min(100, 80 + Math.random() * 20);
+            const optical_alignment = Math.min(100, 92 + Math.random() * 8);
+            const laser_wavelength_stability = Math.min(100, 95 + Math.random() * 5);
+            const infrared_wavelength_stability = Math.min(100, 93 + Math.random() * 7);
+            const unified_detection_accuracy = Math.min(98, (laser_signal_strength + infrared_signal_strength) / 2 + Math.random() * 5);
             
-            // Generate spectral signature (simulated multi-wavelength data)
-            const spectral_signature = Array.from({length: 10}, () => Math.random() * 100);
-            const neural_network_output = Math.tanh(parseFloat(concentration_ppm) / 5) * 100;
-            const ensemble_prediction = (unified_sensor_accuracy + ai_confidence_score) / 2;
+            // Determine sensor status based on signal strength
+            const laser_status = laser_signal_strength > 85 ? 'active' : laser_signal_strength > 70 ? 'degraded' : 'offline';
+            const infrared_status = infrared_signal_strength > 80 ? 'active' : infrared_signal_strength > 65 ? 'degraded' : 'offline';
+            
+            // Environmental factors
+            const sensor_temperature = 20 + Math.random() * 15; // 20-35°C
+            const water_turbidity = Math.random() * 0.5; // 0-0.5 NTU
+            const detection_confidence = Math.min(100, unified_detection_accuracy + Math.random() * 3);
             
             return {
               timestamp,
@@ -127,13 +132,17 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
               collection_volume_ml: parseInt(collection_volume_ml),
               battery_status: parseInt(battery_status),
               power_source,
-              unified_sensor_accuracy,
-              dual_ray_signal_strength,
-              ai_confidence_score,
-              ml_fusion_quality,
-              spectral_signature,
-              neural_network_output,
-              ensemble_prediction
+              laser_signal_strength,
+              infrared_signal_strength,
+              laser_status,
+              infrared_status,
+              optical_alignment,
+              sensor_temperature,
+              water_turbidity,
+              detection_confidence,
+              laser_wavelength_stability,
+              infrared_wavelength_stability,
+              unified_detection_accuracy
             };
           });
         
@@ -161,13 +170,17 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
               particle_size_microns: Math.max(1, lastReading.particle_size_microns + (Math.random() - 0.5) * 5),
               concentration_ppm: Math.max(0, lastReading.concentration_ppm + (Math.random() - 0.5) * 0.5),
               battery_status: Math.max(0, Math.min(100, lastReading.battery_status + (Math.random() - 0.7) * 2)),
-              unified_sensor_accuracy: Math.min(98, 88 + Math.random() * 10),
-              dual_ray_signal_strength: Math.min(100, 85 + Math.random() * 15),
-              ai_confidence_score: Math.min(99, 90 + Math.random() * 9),
-              ml_fusion_quality: Math.min(97, 88 + Math.random() * 9),
-              spectral_signature: Array.from({length: 10}, () => Math.random() * 100),
-              neural_network_output: Math.tanh(Math.random() * 5) * 100,
-              ensemble_prediction: Math.min(98, 90 + Math.random() * 8)
+              laser_signal_strength: Math.min(100, 85 + Math.random() * 15),
+              infrared_signal_strength: Math.min(100, 80 + Math.random() * 20),
+              laser_status: Math.random() > 0.1 ? 'active' : 'degraded',
+              infrared_status: Math.random() > 0.1 ? 'active' : 'degraded',
+              optical_alignment: Math.min(100, 92 + Math.random() * 8),
+              sensor_temperature: 20 + Math.random() * 15,
+              water_turbidity: Math.random() * 0.5,
+              detection_confidence: Math.min(100, 88 + Math.random() * 12),
+              laser_wavelength_stability: Math.min(100, 95 + Math.random() * 5),
+              infrared_wavelength_stability: Math.min(100, 93 + Math.random() * 7),
+              unified_detection_accuracy: Math.min(98, 88 + Math.random() * 10)
             };
             latestData.push(newReading);
           }
@@ -183,16 +196,32 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     return () => clearInterval(interval);
   }, [activeBoats]);
 
-  const getUnifiedSensorAccuracy = (boatId: string) => {
+  const getDualRayStatus = (boatId: string) => {
     const latestReading = sensorData.filter(d => d.boat_id === boatId).pop();
     if (!latestReading) {
-      return { unified: 0, ai_confidence: 0, ml_quality: 0 };
+      return { 
+        laser: { status: 'offline', signal: 0, stability: 0 },
+        infrared: { status: 'offline', signal: 0, stability: 0 },
+        unified: { accuracy: 0, alignment: 0, confidence: 0 }
+      };
     }
     
     return {
-      unified: latestReading.unified_sensor_accuracy || 0,
-      ai_confidence: latestReading.ai_confidence_score || 0,
-      ml_quality: latestReading.ml_fusion_quality || 0
+      laser: {
+        status: latestReading.laser_status,
+        signal: latestReading.laser_signal_strength,
+        stability: latestReading.laser_wavelength_stability
+      },
+      infrared: {
+        status: latestReading.infrared_status,
+        signal: latestReading.infrared_signal_strength,
+        stability: latestReading.infrared_wavelength_stability
+      },
+      unified: {
+        accuracy: latestReading.unified_detection_accuracy,
+        alignment: latestReading.optical_alignment,
+        confidence: latestReading.detection_confidence
+      }
     };
   };
 
@@ -203,7 +232,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     const timeDiff = Date.now() - new Date(latestReading.timestamp).getTime();
     if (timeDiff > 300000) return 'offline'; // 5 minutes
     if (latestReading.battery_status < 20) return 'warning';
-    if (latestReading.unified_sensor_accuracy < 85) return 'warning';
+    if (latestReading.laser_status === 'offline' || latestReading.infrared_status === 'offline') return 'warning';
+    if (latestReading.unified_detection_accuracy < 85) return 'warning';
     
     return 'active';
   };
@@ -213,44 +243,47 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     if (!latestReading) return null;
     
     return {
-      unified_sensor: {
+      dual_ray_sensor: {
         wavelengths: technicalSpecs.dual_ray_wavelengths,
         combined_power: technicalSpecs.combined_power_output,
-        signal_strength: latestReading.dual_ray_signal_strength,
-        accuracy: latestReading.unified_sensor_accuracy,
-        principle: 'AI-Powered Dual-Ray Spectroscopic Analysis',
-        detection_method: 'Simultaneous laser scattering + infrared spectroscopy with neural network fusion',
+        laser_signal: latestReading.laser_signal_strength,
+        infrared_signal: latestReading.infrared_signal_strength,
+        accuracy: latestReading.unified_detection_accuracy,
+        principle: 'Unified Dual-Ray Spectroscopic Analysis',
+        detection_method: 'Simultaneous laser scattering + infrared spectroscopy with optical signal processing',
+        optical_design: technicalSpecs.optical_design,
+        integration_method: technicalSpecs.sensor_integration_method,
         advantages: [
           'Single integrated sensor unit',
-          'AI-enhanced accuracy and reliability',
+          'Enhanced accuracy through dual-wavelength analysis',
           'Real-time multi-modal analysis',
           'Reduced hardware complexity',
-          'Self-calibrating system',
-          'Adaptive environmental compensation'
+          'Perfect temporal alignment',
+          'Shared optical path efficiency',
+          'Environmental compensation'
         ],
         limitations: [
-          'Requires periodic AI model updates',
-          'Higher computational requirements'
+          'Requires precise optical alignment',
+          'Sensitive to environmental conditions',
+          'Complex calibration procedures'
         ]
       },
-      ai_fusion: {
-        algorithm: technicalSpecs.ai_fusion_algorithm,
-        model_version: technicalSpecs.ml_model_version,
-        architecture: technicalSpecs.neural_network_architecture,
-        accuracy: latestReading.unified_sensor_accuracy,
-        ai_confidence: latestReading.ai_confidence_score,
-        ml_quality: latestReading.ml_fusion_quality,
+      signal_processing: {
+        algorithm: technicalSpecs.fusion_algorithm,
+        laser_status: latestReading.laser_status,
+        infrared_status: latestReading.infrared_status,
+        accuracy: latestReading.unified_detection_accuracy,
         confidence: latestReading.detection_confidence,
-        spectral_data: latestReading.spectral_signature,
-        neural_output: latestReading.neural_network_output,
-        ensemble_score: latestReading.ensemble_prediction,
-        method: 'Deep learning fusion with attention mechanisms, ensemble predictions, and temporal consistency',
+        optical_alignment: latestReading.optical_alignment,
+        laser_stability: latestReading.laser_wavelength_stability,
+        infrared_stability: latestReading.infrared_wavelength_stability,
+        method: 'Digital signal correlation with optical beam combining and real-time processing',
         benefits: [
-          'Superior accuracy through AI/ML integration',
-          'Adaptive learning from environmental conditions',
-          'Reduced false positives via ensemble methods',
-          'Real-time optimization and self-improvement',
-          'Multi-modal data fusion in single sensor'
+          'Superior accuracy through dual-wavelength correlation',
+          'Real-time signal processing and analysis',
+          'Reduced false positives via cross-validation',
+          'Environmental drift compensation',
+          'Multi-modal data fusion in single optical path'
         ]
       },
       environmental: {
@@ -262,74 +295,78 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     };
   };
 
-  const validateSensorAccuracy = (boatId: string) => {
+  const validateSensorPerformance = (boatId: string) => {
     const recentReadings = sensorData.filter(d => d.boat_id === boatId).slice(-10);
     if (recentReadings.length < 5) return null;
     
-    const unifiedAccuracies = recentReadings.map(r => r.unified_sensor_accuracy);
-    const aiConfidences = recentReadings.map(r => r.ai_confidence_score);
-    const mlQualities = recentReadings.map(r => r.ml_fusion_quality);
+    const unifiedAccuracies = recentReadings.map(r => r.unified_detection_accuracy);
+    const laserSignals = recentReadings.map(r => r.laser_signal_strength);
+    const infraredSignals = recentReadings.map(r => r.infrared_signal_strength);
     
     const avgUnified = unifiedAccuracies.reduce((a, b) => a + b, 0) / unifiedAccuracies.length;
-    const avgAI = aiConfidences.reduce((a, b) => a + b, 0) / aiConfidences.length;
-    const avgML = mlQualities.reduce((a, b) => a + b, 0) / mlQualities.length;
+    const avgLaser = laserSignals.reduce((a, b) => a + b, 0) / laserSignals.length;
+    const avgInfrared = infraredSignals.reduce((a, b) => a + b, 0) / infraredSignals.length;
     
     // Calculate standard deviation for stability assessment
     const unifiedStd = Math.sqrt(unifiedAccuracies.reduce((sum, val) => sum + Math.pow(val - avgUnified, 2), 0) / unifiedAccuracies.length);
-    const aiStd = Math.sqrt(aiConfidences.reduce((sum, val) => sum + Math.pow(val - avgAI, 2), 0) / aiConfidences.length);
+    const laserStd = Math.sqrt(laserSignals.reduce((sum, val) => sum + Math.pow(val - avgLaser, 2), 0) / laserSignals.length);
     
     return {
-      unified_sensor: {
+      dual_ray_performance: {
         average_accuracy: avgUnified,
         stability: unifiedStd < 2 ? 'Excellent' : unifiedStd < 4 ? 'Stable' : 'Unstable',
         standard_deviation: unifiedStd,
         status: avgUnified > 90 ? 'Optimal' : avgUnified > 80 ? 'Good' : avgUnified > 70 ? 'Acceptable' : 'Poor'
       },
-      ai_system: {
-        average_confidence: avgAI,
-        ml_quality: avgML,
-        stability: aiStd < 2 ? 'Excellent' : aiStd < 3 ? 'Stable' : 'Unstable',
-        ai_performance: (avgAI + avgML) / 2,
+      laser_performance: {
+        average_signal: avgLaser,
+        stability: laserStd < 2 ? 'Excellent' : laserStd < 3 ? 'Stable' : 'Unstable',
+        status: avgLaser > 90 ? 'Optimal' : avgLaser > 80 ? 'Good' : avgLaser > 70 ? 'Acceptable' : 'Poor'
+      },
+      infrared_performance: {
+        average_signal: avgInfrared,
+        combined_performance: (avgLaser + avgInfrared) / 2,
         reliability_score: (avgUnified / 100) * (1 - unifiedStd / 10),
-        recommendation: avgUnified > 92 ? 'AI system performing optimally' : 
-                       avgUnified > 85 ? 'Consider model fine-tuning' : 
-                       avgUnified > 75 ? 'AI model retraining recommended' : 'Immediate system maintenance required'
+        recommendation: avgUnified > 92 ? 'Dual ray system performing optimally' : 
+                       avgUnified > 85 ? 'Consider optical recalibration' : 
+                       avgUnified > 75 ? 'Sensor alignment adjustment recommended' : 'Immediate system maintenance required'
       }
     };
   };
 
-  const getAIFusionMetrics = (boatId: string) => {
+  const getUnifiedSensorMetrics = (boatId: string) => {
     const latestReading = sensorData.filter(d => d.boat_id === boatId).pop();
     if (!latestReading) return null;
 
     return {
-      neural_network: {
-        architecture: technicalSpecs.neural_network_architecture,
-        model_version: technicalSpecs.ml_model_version,
-        output_confidence: latestReading.neural_network_output,
-        processing_layers: 12,
-        attention_heads: 8,
-        parameters: '2.3M'
+      optical_system: {
+        design: technicalSpecs.optical_design,
+        integration_method: technicalSpecs.sensor_integration_method,
+        alignment_accuracy: latestReading.optical_alignment,
+        beam_combining_efficiency: 92.5,
+        optical_path_length: '15mm',
+        dichroic_efficiency: '98.2%'
       },
-      ensemble_learning: {
-        models_count: 5,
-        voting_strategy: 'Weighted Soft Voting',
-        ensemble_score: latestReading.ensemble_prediction,
-        diversity_index: 0.85,
-        bias_variance_tradeoff: 'Optimized'
+      signal_correlation: {
+        correlation_algorithm: 'Cross-Correlation with Phase Lock',
+        temporal_alignment: technicalSpecs.technical_validation.temporal_alignment,
+        signal_to_noise_ratio: technicalSpecs.technical_validation.signal_to_noise_ratio,
+        correlation_coefficient: 0.94,
+        phase_stability: '±0.1°'
       },
-      spectral_analysis: {
+      wavelength_analysis: {
         wavelength_bands: technicalSpecs.dual_ray_wavelengths.length,
+        laser_wavelength: `${technicalSpecs.dual_ray_wavelengths[0]}nm`,
+        infrared_wavelength: `${technicalSpecs.dual_ray_wavelengths[1]}nm`,
+        wavelength_stability: (latestReading.laser_wavelength_stability + latestReading.infrared_wavelength_stability) / 2,
         spectral_resolution: '0.5nm',
-        feature_extraction: 'Convolutional Neural Network',
-        signature_quality: latestReading.spectral_signature ? 
-          latestReading.spectral_signature.reduce((a, b) => a + b, 0) / latestReading.spectral_signature.length : 0
+        detection_bandwidth: '±2nm'
       },
       real_time_processing: {
-        inference_time: '< 50ms',
+        processing_time: '< 10ms',
         throughput: '20 samples/sec',
-        edge_computing: 'Enabled',
-        model_compression: 'Quantized INT8'
+        digital_filtering: 'Enabled',
+        signal_conditioning: 'Hardware-based'
       }
     };
   };
@@ -340,11 +377,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       isConnected,
       lastUpdate,
       technicalSpecs,
-      getUnifiedSensorAccuracy,
+      getDualRayStatus,
       getBoatStatus,
       getSensorTechnicalData,
-      validateSensorAccuracy,
-      getAIFusionMetrics
+      validateSensorPerformance,
+      getUnifiedSensorMetrics
     }}>
       {children}
     </DataContext.Provider>
